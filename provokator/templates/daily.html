@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Daily Counts{% endblock %}
+
+{% block navlinks %}
+<li><a href="/">Overview</a></li>
+<li><a href="/monthly/">Monthly</a></li>
+<li class="active"><a href="/daily/">Daily</a></li>
+
+{% if has_privilege('admin') %}
+<li><a href="/write/">Write</a></li>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+ <div class="row">
+  <div class="col-md-8 col-md-push-2 buffer-top-md">
+   <div class="blank-slate-pf">
+    <h2>Select Date</h2>
+    <form class="form-inline buffer-top-md" method="get" action="view">
+     <div class="form-group">
+      <label class="control-label sr-only" for="day">Day</label>
+      <div class="input-group date" data-date-format="yyyy-mm-dd">
+       <input type="text" name="day" id="day" class="form-control bootstrap-datepicker" readonly><span class="input-group-addon"><span class="fa fa-calendar"></span></span>
+      </div>
+     </div>
+     <button type="submit" class="btn btn-default">View</button>
+    </form>
+   </div>
+  </div>
+ </div>
+</div>
+
+<script>
+$('.input-group.date').datepicker({
+ autoclose: true,
+ todayBtn: "linked",
+ todayHighlight: true
+});
+</script>
+{% endblock %}

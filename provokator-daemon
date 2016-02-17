@@ -1,0 +1,127 @@
+#!/usr/bin/python3 -tt
+
+# Twisted hosts our website and helps with async tasks.
+# The application threads are structured in the following way:
+#
+#  reactor
+#   `-- manager (1 thread)
+#   `-- workers (2 threads)
+#   `-- website (4 threads)
+#
+from twisted.internet import reactor
+from twisted.web.wsgi import WSGIResource
+from twisted.web.server import Site
+from twisted.python.threadpool import ThreadPool
+from twisted.python import log
+
+# Data are accessed through SQLSoup, using SQLAlchemy.
+from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy import create_engine
+from sqlsoup import SQLSoup
+
+# Command line arguments follow the GNU conventions.
+from getopt import gnu_getopt
+from sys import argv, stderr
+
+# Configuration is stored in a simple ini file.
+from configparser import ConfigParser
+
+# Import all the application handles.
+from provokator import make_site, Manager, AccessModel, reflect
+
+
+if __name__ == '__main__':
+    def do_start(config):
+        # Start Twisted logging to console.
+        log.startLogging(stderr)
+
+        # Read database configuration options.
+        db_url = config.get('database', 'url')
+
+        # Read website configuration options.
+        http_debug = config.getboolean('http', 'debug', fallback=False)
+        http_host = config.get('http', 'host', fallback='localhost')
+        http_port = config.getint('http', 'port', fallback=5000)
+        http_pool = config.getint('http', 'pool_size', fallback=4)
+
+        # Read role mappings.
+        access_model = AccessModel(config.items('access'))
+
+        # Default to much saner database query defaults and always
+        # commit and/or flush statements explicitly.
+        factory = sessionmaker(autocommit=False, autoflush=False)
+
+        # Prepare database connection with table reflection.
+        engine = create_engine(db_url, isolation_level='SERIALIZABLE')
+        session = scoped_session(sessionmaker(autocommit=False, autoflush=False))
+        db = SQLSoup(reflect(engine), session=session)
+
+        # Extract manager options, sans the pool_size we handle here.
+        manager_opts = dict(config.items('manager'))
+        manager_pool = int(manager_opts.pop('pool_size', 2))
+
+        # Set the correct thread pool size for the manager.
+        reactor.suggestThreadPoolSize(manager_pool)
+
+        # Prepare the manager that runs in an exclusive thread.
+        manager = Manager(db, **manager_opts)
+
+        # Prepare the website that will get exposed to the users.
+        site = make_site(db, manager, access_model, debug=http_debug)
+
+        # Prepare WSGI site with a separate thread pool.
+        pool = ThreadPool(http_pool, http_pool, 'http')
+        site = Site(WSGIResource(reactor, pool, site))
+        pool.start()
+
+        # Bind the website to it's address.
+        reactor.listenTCP(http_port, site, interface=http_host)
+
+        # Schedule a call to the manager right after we finish here.
+        reactor.callLater(0, manager.start)
+
+        # Run the Twisted reactor until the user terminates us.
+        reactor.run()
+
+        # Kill the HTTP ThreadPool.
+        pool.stop()
+
+
+    def do_help(*args, **kwargs):
+        print('Usage: provokator-daemon [--config=/etc/provokator.ini]')
+        print('Runs the provokator-daemon with given configuration.')
+        print('')
+        print('OPTIONS:')
+        print('  --help, -h          Display this help.')
+        print('  --version, -V       Display version info.')
+        print('')
+        print('  --config, -c file   Load alternative configuration file.')
+        print('')
+        print('Report bugs at <http://github.com/techlib/provokator>.')
+
+    def do_version(*args, **kwargs):
+        print('provokator (NTK) 1')
+
+    # Parse command line arguments.
+    opts, args = gnu_getopt(argv, 'hVc:', ['help', 'version', 'config='])
+
+    action = do_start
+    config_path = '/etc/provokator.ini'
+
+    for k, v in opts:
+        if k in ('--help', '-h'):
+            action = do_help
+        elif k in ('--version', '-V'):
+            action = do_version
+        elif k in ('--config', '-c'):
+            config_path = v
+
+    # Load the configuration from file.
+    config = ConfigParser()
+    config.read(config_path)
+
+    # Perform the selected action.
+    action(config=config)
+
+# vim:set sw=4 ts=4 et:
+# -*- coding: utf-8 -*-

@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if year == None and state == None %}
+Recent Messages
+{% elif year == None %}
+Recently {{state.capitalize()}} Messages
+{% elif state == None %}
+Messages
+{% else %}
+{{state.capitalize()}} Messages
+{% endif %}
+{% endblock %}
+
+{% block navlinks %}
+<li{% if year == None %} class="active"{% endif %}>
+ <a href="/">Overview</a>
+</li>
+<li{% if year != None %} class="active"{% endif %}>
+ <a href="/monthly/">Monthly</a>
+</li>
+<li><a href="/daily/">Daily</a></li>
+
+{% if has_privilege('admin') %}
+<li>
+ <a href="/write/">Write</a>
+</li>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid container-cards-pf">
+ <div class="row row-cards-pf">
+  <div class="col-md-8 col-md-push-2">
+   <div class="card-pf card-pf-accented card-pf-aggregate-status">
+    <h2 class="card-pf-title">
+     <a href="." class="card-pf-aggregate-status-count">
+      <span class="fa fa-envelope"></span>{{total_sent + total_incoming + total_outgoing + total_checked + total_failed}}
+     </a>
+     {% if year == None %}
+     messages in the past <strong>14</strong> days
+     {% else %}
+     messages in <strong>{{year}}-{{month}}</strong>
+     {% endif %}
+    </h2>
+    <div class="card-pf-body">
+     <p class="card-pf-aggregate-status-notifications">
+      <a href="sent" class="card-pf-aggregate-status-notification" title="Sent">
+       <span class="text-success">
+        <i class="pficon pficon-ok"></i>{{total_sent}}
+       </span>
+      </a>
+      <a href="incoming" class="card-pf-aggregate-status-notification" title="Incoming">
+       <span class="text-warning">
+        <i class="pficon pficon-users"></i>{{total_incoming}}
+       </span>
+      </a>
+      <a href="outgoing" class="card-pf-aggregate-status-notification" title="Outgoing">
+       <span class="text-muted">
+        <i class="pficon fa-send"></i>{{total_outgoing}}
+       </span>
+      </a>
+      <a href="checked" class="card-pf-aggregate-status-notification" title="Checked">
+       <span class="text-muted">
+        <i class="pficon pficon-running"></i>{{total_checked}}
+       </span>
+      </a>
+      <a href="failed" class="card-pf-aggregate-status-notification" title="Failed">
+       <span class="text-danger">
+        <i class="pficon pficon-error-circle-o"></i>{{total_failed}}
+       </span>
+      </a>
+     </p>
+    </div>
+   </div>
+  </div>
+  <div class="col-md-8 col-md-push-2">
+   <div id="trend"></div>
+   <hr>
+  </div>
+ </div>
+</div>
+
+<div class="container-fluid">
+ <div class="row">
+  <div class="col-md-8 col-md-push-2">
+   {% if year == None and state == None %}
+   <h2>Recent Messages</h2>
+   {% elif year == None %}
+   <h2>Recently {{state.capitalize()}} Messages</h2>
+   {% elif state == None %}
+   <h2>Messages</h2>
+   {% else %}
+   <h2>{{state.capitalize()}} Messages</h2>
+   {% endif %}
+
+   {% for m in messages %}
+   <div class="toast-pf alert sms {{m.state|to_alert}}">
+    <time class="pull-right">{{m.ts|format_ts}}</time>
+    {% if m.state == 'incoming' %}
+    <i class="pficon {{m.state|to_icon}}"></i>
+    <span class="phone">{{m.msg.get('From')|format_phone}}</span>
+    {% else %}
+    <i class="pficon pficon-enterprise"></i>
+    <span class="phone">{{m.msg.get('To')|format_phone}}</span>
+    {% endif %}
+    <p>{{m.msg.get('text')}}</p>
+   </div>
+   {% endfor %}
+  </div>
+ </div>
+</div>
+
+<script>
+ var chart = c3.generate({
+  axis: {
+   x: {
+    tick: {
+     format: '%m/%d',
+     outer: true
+    },
+    type: 'timeseries'
+   },
+  },
+  bindto: '#trend',
+  data: {
+   rows: [
+    ['x', 'sent', 'incoming', 'failed'],
+    {% for d in days %}
+   ['{{d.year}}-{{d.month}}-{{d.day}}', {{d.sent}}, {{d.incoming}}, {{d.failed}}],
+    {% endfor %}
+   ],
+   x: 'x',
+   colors: {
+    sent: '#3f9c35',
+    incoming: '#ec7a08',
+    failed: '#cc0000',
+   },
+  },
+  grid: {
+   y: {
+    show: false
+   }
+  },
+  legend: {
+   hide: true
+  },
+  point: {
+   r: 4
+  },
+  size: {
+   height: 200
+  }
+ });
+</script>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Messages on {{year}}-{{month}}-{{day}}{% endblock %}
+
+{% block navlinks %}
+<li><a href="/">Overview</a></li>
+<li><a href="/monthly/">Monthly</a></li>
+<li class="active"><a href="/daily/">Daily</a></li>
+
+{% if has_privilege('admin') %}
+<li><a href="/write/">Write</a></li>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid container-cards-pf">
+ <div class="row row-cards-pf">
+  <div class="col-md-8 col-md-push-2">
+   <div class="card-pf card-pf-accented card-pf-aggregate-status">
+    <h2 class="card-pf-title">
+     <span class="card-pf-aggregate-status-count">
+      <span class="fa fa-envelope"></span>{{total_sent + total_incoming + total_outgoing + total_checked + total_failed}}
+     </span>
+     messages on <strong>{{year}}-{{month}}-{{day}}</strong>
+    </h2>
+    <div class="card-pf-body">
+     <p class="card-pf-aggregate-status-notifications">
+      <span class="card-pf-aggregate-status-notification" title="Sent">
+       <span class="text-success">
+        <i class="pficon pficon-ok"></i>{{total_sent}}
+       </span>
+      </span>
+      <span class="card-pf-aggregate-status-notification" title="Incoming">
+       <span class="text-warning">
+        <i class="pficon pficon-users"></i>{{total_incoming}}
+       </span>
+      </span>
+      <span class="card-pf-aggregate-status-notification" title="Outgoing">
+       <span class="text-muted">
+        <i class="pficon fa-send"></i>{{total_outgoing}}
+       </span>
+      </span>
+      <span class="card-pf-aggregate-status-notification" title="Checked">
+       <span class="text-muted">
+        <i class="pficon pficon-running"></i>{{total_checked}}
+       </span>
+      </span>
+      <span class="card-pf-aggregate-status-notification" title="Failed">
+       <span class="text-danger">
+        <i class="pficon pficon-error-circle-o"></i>{{total_failed}}
+       </span>
+      </span>
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+</div>
+
+<div class="container-fluid">
+ <div class="row">
+  <div class="col-md-8 col-md-push-2">
+   <h2>Messages On {{year}}-{{month}}-{{day}}</h2>
+
+   {% for m in messages %}
+   <div class="toast-pf alert sms {{m.state|to_alert}}">
+    <time class="pull-right">{{m.ts|format_ts}}</time>
+    {% if m.state == 'incoming' %}
+    <i class="pficon {{m.state|to_icon}}"></i>
+    <span class="phone">{{m.msg.get('From')|format_phone}}</span>
+    {% else %}
+    <i class="pficon pficon-enterprise"></i>
+    <span class="phone">{{m.msg.get('To')|format_phone}}</span>
+    {% endif %}
+    <p>{{m.msg.get('text')}}</p>
+   </div>
+   {% endfor %}
+  </div>
+ </div>
+</div>
+{% endblock %}

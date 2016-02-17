@@ -1,0 +1,30 @@
+.buffer-top-md {
+	padding-top: 20px;
+}
+
+.sms {
+	width: 100%;
+}
+
+.sms .phone {
+	font-weight: bold;
+}
+
+.sms time {
+	display: block;
+	text-align: right;
+	opacity: 0.7;
+}
+
+.navbar-brand {
+	line-height: 0.75em;
+}
+
+a.card-pf-aggregate-status-notification,
+a.card-pf-aggregate-status-count {
+	text-decoration: none;
+}
+
+i.pficon {
+	font-style: normal;
+}

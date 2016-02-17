@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Write Message{% endblock %}
+
+{% block navlinks %}
+<li><a href="/">Overview</a></li>
+<li><a href="/monthly">Monthly</a></li>
+<li><a href="/daily/">Daily</a></li>
+<li class="active"><a href="/write/">Write</a></li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+ <div class="row">
+  <div class="col-md-6 col-md-push-3 col-sm-6 col-sm-push-3 buffer-top-md">
+   <div class="blank-slate-pf">
+    <h2>Write Message</h2>
+    <form class="form-horizontal buffer-top-md" method="post" action="send">
+     <div class="form-group">
+      <label class="control-label sr-only" for="day">Phone Number</label>
+      <div class="input-group">
+       <span class="input-group-addon"><span class="fa fa-mobile"></span> Mobile</span>
+       <input type="tel" name="phone" id="phone" class="form-control" placeholder="+420123456789" pattern="^\+(\d|\s){6,15}$" title="mobile phone number">
+      </div>
+     </div>
+     <div class="form-group">
+      <label class="control-label sr-only" for="day">Text</label>
+      <textarea name="text" id="text" type="text" class="form-control" placeholder="Type your text here..." pattern=".+" pattern="at least one character"></textarea>
+     </div>
+     <button type="submit" class="btn btn-default">Send</button>
+    </form>
+   </div>
+  </div>
+ </div>
+</div>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Monthly Counts{% endblock %}
+
+{% block navlinks %}
+<li><a href="/">Overview</a></li>
+<li class="active"><a href="/monthly/">Monthly</a></li>
+<li><a href="/daily/">Daily</a></li>
+
+{% if has_privilege('admin') %}
+<li><a href="/write/">Write</a></li>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid container-cards-pf">
+ <div class="col-md-8 col-md-push-2">
+  <div id="trend"></div>
+ </div>
+ <hr>
+</div>
+
+<div class="container-fluid">
+ <div class="row">
+  <div class="col-md-8 col-md-push-2">
+   <h2>Monthly</h2>
+   <table class="table table-striped">
+    <thead>
+     <th>Year</th>
+     <th>Month</th>
+     <th>Count</th>
+    </thead>
+    <tbody>
+     {% for m in months %}
+     <tr>
+      <td>{{m.year}}</td>
+      <td>{{m.month}}</td>
+      <td><a href="/monthly/{{m.year}}/{{m.month}}/">{{m.count}}</a></td>
+     </tr>
+     {% endfor %}
+    </tbody>
+   </table>
+  </div>
+ </div>
+</div>
+
+<script>
+ var chart = c3.generate({
+  axis: {
+   x: {
+    tick: {
+     format: '%Y-%m',
+     outer: true
+    },
+    type: 'timeseries'
+   },
+  },
+  bindto: '#trend',
+  data: {
+   rows: [
+    ['x', 'messages'],
+    {% for m in months %}
+    ['{{m.year}}-{{m.month}}-1', {{m.count}}],
+    {% endfor %}
+   ],
+   x: 'x',
+  },
+  grid: {
+   y: {
+    show: false
+   }
+  },
+  legend: {
+   hide: true
+  },
+  point: {
+   r: 4
+  },
+  size: {
+   height: 200
+  }
+ });
+</script>
+{% endblock %}

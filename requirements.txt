@@ -1,0 +1,6 @@
+Twisted
+Flask
+SQLAlchemy
+SQLSoup
+Werkzeug
+requests

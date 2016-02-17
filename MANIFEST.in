@@ -1,0 +1,2 @@
+include provokator/templates/*.html
+include provokator/static/*/*

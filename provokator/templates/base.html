@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<!--[if IE 9]><html lang="en-us" class="ie9"><![endif]-->
+<!--[if gt IE 9]><!-->
+<html lang="en-us">
+ <!--<![endif]-->
+ <head>
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/static/vendor/patternfly/css/patternfly.min.css?v=3.0.0">
+  <link rel="stylesheet" href="/static/vendor/patternfly/css/patternfly-additions.min.css?v=3.0.0">
+  <link rel="stylesheet" href="/static/css/global.css">
+  <script src="//code.jquery.com/jquery-2.1.4.min.js" crossorigin="anonymous" integrity="sha384-R4/ztc4ZlRqWjqIuvf6RX5yb/v90qNGx6fS48N0tRxiGkqveZETq72KgDVJCp2TC"></script>
+  <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" crossorigin="anonymous" integrity="sha384-pPttEvTHTuUJ9L2kCoMnNqCRcaMPMVMsWVO+RLaaaYDmfSP5//dP6eKRusbPcqhZ"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/c3/0.4.10/c3.min.js" crossorigin="anonymous" integrity="sha384-/Vv2ZWKC//g4/81qSXA2Zz0vLY9wGCcyiCFp4ggux0Yr0PZ6LZUROvz1jNZBY5Zj"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.0/d3.min.js" crossorigin="anonymous" integrity="sha384-El0qv9Pxd6c2/bycDP12IVxnSAPzl//int+Npsli61OUaA3d38XOA3OdIB8nv1Aj"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.0/js/bootstrap-datepicker.min.js" crossorigin="anonymous" integrity="sha384-vSdYrU7lSLRoeJP8+brQ26ad7tTrch3Rbp7wOYQ9U+9+SpJO5le1+vWHKzK1w58d"></script>
+
+  <script src="/static/vendor/patternfly/js/patternfly.min.js?v=3.0.0"></script>
+  <title>{% block title %}{% endblock %} - Provokátor</title>
+  {% block head %}
+  {% endblock %}
+ </head>
+ <body>
+  <nav class="navbar navbar-utility navbar-pf" role="navigation">
+   <div class="navbar-header">
+    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-1">
+     <span class="sr-only">Toggle navigation</span>
+     <span class="icon-bar"></span>
+     <span class="icon-bar"></span>
+     <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand" href="/"><b>NTK</b> Provokátor</a>
+   </div>
+
+   {% block navigation %}
+   <div class="collapse navbar-collapse navbar-collapse-1">
+    <ul class="nav navbar-nav navbar-primary">
+     {% block navlinks %}
+     {% endblock %}
+    </ul>
+   </div>
+   {% endblock %}
+  </nav>
+
+  <div class="toast-pf-max-width toast-pf-top-right">
+   {% for category, message in get_flashed_messages(with_categories=true) %}
+   <div class="toast-pf alert {{category|to_alert}} alert-dismissable pull-right">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">
+     <i class="pficon pficon-close"></i>
+    </button>
+    <i class="pficon {{category|to_icon}}"></i> {{message}}
+   </div>
+   {% endfor %}
+  </div>
+
+  {% block content %}
+  {% endblock %}
+ </body>
+</html>
