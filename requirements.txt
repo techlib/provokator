@@ -4,3 +4,4 @@ SQLAlchemy
 SQLSoup
 Werkzeug
 requests
+psycopg2
