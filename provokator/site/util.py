@@ -14,19 +14,17 @@ import re
 def internal_origin_only(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
-        h = urlparse('http://' + flask.request.headers.get('Host', ''))
-        host = '%s:%i' % (h.hostname, h.port or 80)
+        host = flask.request.headers.get('X-Forwarded-Host') or \
+               flask.request.headers.get('Host', '')
 
-        if 'Origin' in flask.request.headers:
-            o = urlparse(flask.request.headers.get('Origin'))
-            origin = '%s:%i' % (o.hostname, o.port or 80)
-        elif 'Referer' in flask.request.headers:
-            r = urlparse(flask.request.headers.get('Referer'))
-            origin = '%s:%i' % (r.hostname, r.port or 80)
-        else:
-            origin = host
+        h = urlparse('http://' + host)
 
-        if host != origin:
+        origin = flask.request.headers.get('Origin') or \
+                 flask.request.headers.get('Referer') or \
+                 host
+        o = urlparse(origin)
+
+        if h.hostname != o.hostname:
             raise Forbidden('Cross-Site Request Forbidden')
 
         return fn(*args, **kwargs)
