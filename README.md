@@ -45,7 +45,7 @@ If you feel like it, create an [unit file][] to start the application automatica
 
 ## Authentication
 
-The application does not perform any kind of authentication. You need to ensure that it receives a single HTTP header called `X-Roles` that includes roles the current user has. These roles are mapped to privileges using the rules in the `acl` section of the configuration file.
+The application does not perform any kind of authentication. You need to ensure that it receives a single HTTP header called `X-Roles` that includes roles of the current user. These roles are mapped to privileges using the rules in the `acl` section of the configuration file. Individual roles are extracted from the `X-Roles` header using the `\w+` regular expression. Valid formats include `omnipotent dictator` or `sysadmin;director`.
 
 There are two privilege levels:
 
