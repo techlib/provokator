@@ -38,7 +38,7 @@ class AccessModel(object):
     def have_privilege(self, priv, roles):
         """Determine whether specified roles have given privilege."""
 
-        for role in roles or ['impotent']:
+        for role in roles:
             if priv in self.privileges(role):
                 return True
 

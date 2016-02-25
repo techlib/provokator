@@ -58,7 +58,12 @@ def make_site(db, manager, access_model, debug=False):
 
     def has_privilege(privilege):
         roles = flask.request.headers.get('X-Roles', '')
-        roles = re.findall(r'\w+', roles)
+
+        if not roles or '(null)' == roles:
+            roles = ['impotent']
+        else:
+            roles = re.findall(r'\w+', roles)
+
         return access_model.have_privilege(privilege, roles)
 
     def authorized_only(privilege='user'):
