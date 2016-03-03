@@ -15,6 +15,10 @@ If such a release is available, all dependencies can be fetched automatically wi
 
     pip3 install -r requirements.txt
 
+In case you need to install newer Twisted:
+
+    pip3 install -e 'git+https://github.com/twisted/twisted.git@trunk#egg=twisted'
+
 You might want to consider creating a sandbox (so-called [virtualenv][]) to hold these dependencies so that you do not clobber your system packages.
 
 
