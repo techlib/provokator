@@ -21,6 +21,10 @@ In case you need to install newer Twisted:
 
 You might want to consider creating a sandbox (so-called [virtualenv][]) to hold these dependencies so that you do not clobber your system packages.
 
+Next, you need to download the client code dependencies. This has been automated:
+
+    make
+
 
 ## Database
 
