@@ -17,6 +17,7 @@ setup(
     },
     packages = [
         'provokator',
+        'provokator.site',
     ],
     classifiers = [
         'License :: OSI Approved :: MIT License',
