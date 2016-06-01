@@ -6,6 +6,7 @@ __all__ = ['Manager']
 from twisted.internet import task, reactor
 from twisted.python import log
 from urllib.parse import urljoin
+from datetime import datetime
 
 import requests
 
@@ -40,9 +41,22 @@ class Manager(object):
                     # something like that. Ignore.
                     continue
 
+                # Identify the time when the message was received/sent.
+                # If the respective header is not present, use current time.
+                try:
+                    ts = datetime.now()
+
+                    if info.get('Received') is not None:
+                        ts = datetime.strptime(info['Received'], '%y-%m-%d %H:%M:%S')
+                    elif info.get('Sent') is not None:
+                        ts = datetime.strptime(info['Sent'], '%y-%m-%d %H:%M:%S')
+
+                except ValueError:
+                    pass
+
                 if m is None:
                     # Message was never seen before.
-                    m = self.db.message(id=mid, msg=info, state=kind)
+                    m = self.db.message(id=mid, msg=info, state=kind, ts=ts)
                 else:
                     # Message changed state.
                     m.state = kind
