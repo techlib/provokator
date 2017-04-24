@@ -112,6 +112,9 @@ def make_site(db, manager, access_model, debug=False):
 
         return messages.all()
 
+    @app.route('/favicon.ico')
+    def favicon():
+        raise NotFound()
 
     @app.route('/')
     @app.route('/<state>')
