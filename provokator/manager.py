@@ -21,7 +21,12 @@ class Manager(object):
         log.msg('Starting message download...')
 
         for kind in self.KINDS:
-            r = requests.get(urljoin(self.peer_url, '%s/' % kind)).json()
+            try:
+                r = requests.get(urljoin(self.peer_url, '%s/' % kind)).json()
+            except:
+                log.msg('Failed to fetch %s messages', kind)
+                log.err()
+                continue
 
             for mid in r['message_id']:
                 m = self.db.message.filter_by(id=mid).first()
@@ -30,7 +35,12 @@ class Manager(object):
                     # Message is up-to-date in the database.
                     continue
 
-                info = requests.get(urljoin(self.peer_url, '%s/%s' % (kind, mid))).json()
+                try:
+                    info = requests.get(urljoin(self.peer_url, '%s/%s' % (kind, mid))).json()
+                except:
+                    log.msg('Failed to fetch %s/%s message', kind, mid)
+                    log.err()
+                    continue
 
                 if info.get('From') is None and info.get('To') is None:
                     # Discard when neither sender nor recipient is present.
