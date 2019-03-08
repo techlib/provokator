@@ -52,7 +52,7 @@ if __name__ == '__main__':
         factory = sessionmaker(autocommit=False, autoflush=False)
 
         # Prepare database connection with table reflection.
-        engine = create_engine(db_url, isolation_level='SERIALIZABLE')
+        engine = create_engine(db_url)
         session = scoped_session(sessionmaker(autocommit=False, autoflush=False))
         db = SQLSoup(reflect(engine), session=session)
 
